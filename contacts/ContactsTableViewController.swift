@@ -9,10 +9,48 @@
 import UIKit
 
 class ContactsTableViewController: UITableViewController {
+    
+    var contacts = [Contact]()
+    
+    
+    func toggleEdit() {
+        tableView.setEditing(!tableView.editing, animated: true)
+    }
 
+    
+    override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        if tableView.editing {
+            return .None
+        } else {
+            return .Delete
+        }
+    }
+    
+    override func tableView(tableView: UITableView, shouldIndentWhileEditingRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return false
+    }
+    
+    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        let contactMoving = contacts.removeAtIndex(sourceIndexPath.row)
+        contacts.insert(contactMoving, atIndex: destinationIndexPath.row)
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        
+        let moveButton = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: Selector("toggleEdit"))
+        navigationItem.leftBarButtonItem = moveButton
+        
+        let jason = Contact(phoneNumber: "484-4444")
+        let jonny = Contact(name: "Jonny", phoneNumber: "888-888-8888")
+        let mindy = Contact(name: "Mindy")
+        
+        self.contacts.append(jason)
+        self.contacts.append(jonny)
+        self.contacts.append(mindy)
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -34,15 +72,36 @@ class ContactsTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Return the number of rows in the section.
-        return 5
+        return self.contacts.count
     }
-
+    
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .Delete {
+            self.contacts.removeAtIndex(indexPath.row)
+            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+        }
+    }
+    
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let indexPath = self.tableView.indexPathForCell(sender as! UITableViewCell)!
+        let contact = self.contacts[indexPath.row]
+        var destination = segue.destinationViewController as! DetailViewController
+        destination.contact = contact
+    }
+    
+    
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! UITableViewCell
-
-        // Configure the cell...
-        cell.textLabel?.text = "A PERFECT example of a UITableViewCell."
+        
+        let contact = self.contacts[indexPath.row]
+        
+        if let name = contact.name {
+            cell.textLabel?.text = name
+        } else {
+            cell.textLabel?.text = "No Name"
+        }
         
         return cell
     }

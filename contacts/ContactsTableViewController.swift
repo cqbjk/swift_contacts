@@ -35,10 +35,18 @@ class ContactsTableViewController: UITableViewController {
         contacts.insert(contactMoving, atIndex: destinationIndexPath.row)
     }
 
+    func addContact() {
+        let newContact = Contact(name: "New Contact")
+        self.contacts.append(newContact)
+        let newIndexPath = NSIndexPath(forRow: self.contacts.count - 1, inSection: 0)
+        self.tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Automatic)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: Selector("addContact"))
+        navigationItem.rightBarButtonItem = addButton
         
         let moveButton = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: Selector("toggleEdit"))
         navigationItem.leftBarButtonItem = moveButton
@@ -68,6 +76,11 @@ class ContactsTableViewController: UITableViewController {
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // Return the number of sections.
         return 1
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
